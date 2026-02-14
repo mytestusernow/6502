@@ -75,22 +75,22 @@ MONCOUT:
 	RTS
 
 MONRDKEY:
-; 	LDA	ACIA_STATUS
-; 	AND	#ACIA_STATUS_RX_FULL
-; 	BEQ	NoDataIn
-; 	LDA	ACIA_DATA
-; 	SEC		; Carry set if key available
-; 	RTS
-; NoDataIn:
-; 	CLC		; Carry clear if no key pressed
+  ; Check serial port (ACIA) for input
   jsr _acia_is_data_available
-  ; skip, no data available at this point
   cmp #(ACIA_NO_DATA_AVAILABLE)
-  beq NoDataIn
+  beq @check_keyboard
   jsr _acia_read_byte
   sec
   rts
-NoDataIn:
+@check_keyboard:
+  ; Check plug-in keyboard for input
+  jsr _keyboard_is_data_available
+  cmp #(KEYBOARD_NO_DATA_AVAILABLE)
+  beq @no_data
+  jsr _keyboard_read_char
+  sec
+  rts
+@no_data:
   clc
 	RTS
 
